@@ -5,7 +5,7 @@ const UserSession = require('../model/userSession');
 const { json } = require('body-parser');
 
 const generateAuthToken = (user) => {
-    return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7h' });
 };
 
 // Controller method for user login

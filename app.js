@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./model/userModel'); 
+const jwt = require('jsonwebtoken');
+
 
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
@@ -19,6 +21,36 @@ app.use(bodyParser.json());
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Error connecting to MongoDB:', err));
+
+// Define secret key for JWT
+const secretKey = process.env.JWT_SECRET;
+    // Authentication middleware
+const authenticateToken = (req, res, next) => {
+    const token1 = req.headers['authorization'];
+    if (!token1) return res.status(401).send('Access Denied');
+    let token2 = token1?.split(' ');
+    let token = token2[1]
+    
+
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err){
+            return res.status(403).send('Invalid Token');
+        } else{
+            req.user = user;
+            next();
+        }
+        
+    });
+};
+
+// Apply authentication middleware to all routes except login
+app.use((req, res, next) => {
+    if (req.path === '/login') {
+        next(); // Skip authentication for login route
+    } else {
+        authenticateToken(req, res, next); // Apply authentication for other routes
+    }
+});
 
 
     // Authentication routes
