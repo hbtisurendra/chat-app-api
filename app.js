@@ -1,7 +1,13 @@
+const cors = require('cors');
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const yaml = require('js-yaml');
+const fs = require('fs');
 const mongoose = require('mongoose');
 const User = require('./model/userModel'); 
 const jwt = require('jsonwebtoken');
+
+
 
 
 const bodyParser = require('body-parser');
@@ -16,11 +22,36 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 const app = express();
 
+app.use(cors());
+
 app.use(bodyParser.json());
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Error connecting to MongoDB:', err));
+
+
+    const corsOptions = {
+        origin: 'http://localhost:3001', // Replace with your React app's URL
+        optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+    };
+    
+    app.use(cors(corsOptions));
+
+    try {
+        const yamlFile = fs.readFileSync('swagger.yaml', 'utf8');
+        const swaggerDocument = yaml.load(yamlFile);
+      
+        // Serve Swagger UI
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+      
+        // Start server
+        app.listen(PORT, () => {
+          console.log(`Server is running on port ${PORT}`);
+        });
+      } catch (error) {
+        console.error('Error loading YAML file:', error);
+      }
 
 // Define secret key for JWT
 const secretKey = process.env.JWT_SECRET;

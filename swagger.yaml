@@ -1,0 +1,41 @@
+openapi: 3.0.0
+info:
+  title: User Authentication API
+  version: 1.0.0
+paths:
+  /login:
+    post:
+      summary: Authenticate user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Unauthorized
+  /logout:
+    post:
+      summary: Logout user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Unauthorized
